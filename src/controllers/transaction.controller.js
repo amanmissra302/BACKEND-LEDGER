@@ -95,11 +95,6 @@ async function createTransaction(req,res){
     type:'DEBIT'
    }],{session})
 
-
-  await new Promise((resolve) => {
-  setTimeout(resolve, 15000);
-  })
-
    const creditLedgerEntry=await ledgerModel.create([{
     account:toAccount,
     amount:amount,
@@ -113,11 +108,11 @@ async function createTransaction(req,res){
 
    await session.commitTransaction()
    session.endSession()
+   await emailService.sendRegistrationEmail(req.user.email,req.user.name,amount,toAccount)
    return res.status(201).json({
     message:"Transaction completed successfully",
     transaction:transaction
    })
-    await emailService.sendRegistrationEmail(req.user.email,req.user.name,amount,toAccount)
   }
   catch(err){
     await session.abortTransaction()
